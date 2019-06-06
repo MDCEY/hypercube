@@ -1,0 +1,3 @@
+[submodule "hypercube-frontend"]
+	path = hypercube-frontend
+	url = https://github.com/MDCEY/hypercube-frontend.git
