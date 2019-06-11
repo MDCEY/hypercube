@@ -32,6 +32,7 @@ def unregister_interest(session, table, serial):
         return True
 
 def update_serial_of_interest(local_session, tesseract_session, local_db, tesseract_db):
+    print("Updating SOI last seen")
     serials_of_interest = local_session.query(local_db).all()
     for row in serials_of_interest:
         unit_history = tesseract_session.query(tesseract_db).filter(tesseract_db.Call_Ser_Num == row.serial_number).order_by(tesseract_db.Call_Num.desc()).first()
