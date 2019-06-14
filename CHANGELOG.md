@@ -7,6 +7,7 @@
 
 
 ### Updated
+- Sessions no longer throw errors in the background thread
 
 ### Fixed
 
