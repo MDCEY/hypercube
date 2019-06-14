@@ -41,3 +41,12 @@ def update_serial_of_interest(local_session, tesseract_session, local_db, tesser
             local_session.commit()
 
     return get_serials_of_interest(local_session,local_db)
+
+def booked_in_today(tesseract_session, t_calls, t_prod):
+    rows = tesseract_session.query(t_calls, t_prod).join(t_prod,t_prod.Prod_Num == t_calls.Call_Prod_Num).filter(t_calls.Call_InDate>=dt.now().date()).filter(t_calls.Call_Status == 'WORK').order_by(t_calls.Call_Num.desc())
+    return [{
+        'call': row[0].Call_Num,
+        'serial': row[0].Call_Ser_Num,
+        'product': row[1].Prod_Desc,
+        'addedAt': row[0].Call_InDate
+    }for row in rows]
