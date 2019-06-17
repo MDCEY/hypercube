@@ -3,9 +3,9 @@ __version__ = '0.1.0'
 import sched, time
 import threading
 
-from Model.local_db import Session as lsession, SerialOfInterest
-from Model.tesseract_db import Session as tsession, Call, Product
-from Model.selectors import add_serial, get_serials_of_interest, unregister_interest, update_serial_of_interest, booked_in_today
+from hypercube.Model.local_db import Session as lsession, SerialOfInterest
+from hypercube.Model.tesseract_db import Session as tsession, Call, Product
+from hypercube.Model.selectors import add_serial, get_serials_of_interest, unregister_interest, update_serial_of_interest, booked_in_today
 import hug
 
 s = sched.scheduler(time.time, time.sleep)
@@ -66,6 +66,9 @@ def update_db():
         next_call = next_call + 30
         time.sleep(next_call - time.time())
     
-timerThread = threading.Thread(target=update_db)
-timerThread.daemon = True
-timerThread.start()
+
+def main():
+    timerThread = threading.Thread(target=update_db)
+    timerThread.daemon = True
+    timerThread.start()
+    hug.development_runner._start_api(api,'127.0.0.1', 8000, False, show_intro=False)
