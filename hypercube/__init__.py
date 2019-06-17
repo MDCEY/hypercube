@@ -1,12 +1,19 @@
 __version__ = '0.1.0'
 
-import sched, time
+import sched
 import threading
+import time
 
-from hypercube.Model.local_db import Session as lsession, SerialOfInterest
-from hypercube.Model.tesseract_db import Session as tsession, Call, Product
-from hypercube.Model.selectors import add_serial, get_serials_of_interest, unregister_interest, update_serial_of_interest, booked_in_today
 import hug
+
+from hypercube.Model.local_db import SerialOfInterest
+from hypercube.Model.local_db import Session as lsession
+from hypercube.Model.selectors import (add_serial, booked_in_today,
+                                       get_serials_of_interest,
+                                       unregister_interest,
+                                       update_serial_of_interest)
+from hypercube.Model.tesseract_db import Call, Product
+from hypercube.Model.tesseract_db import Session as tsession
 
 s = sched.scheduler(time.time, time.sleep)
 

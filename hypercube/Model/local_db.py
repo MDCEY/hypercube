@@ -4,16 +4,18 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 
-engine = create_engine('sqlite:///hypercube.db')
+engine = create_engine("sqlite:///hypercube.db")
 Base = declarative_base()
 
+
 class SerialOfInterest(Base):
-    __tablename__ = 'serail_of_interest'
+    __tablename__ = "serail_of_interest"
 
     id = Column(Integer, primary_key=True)
     serial_number = Column(String)
     date_added = Column(DateTime, default=dt.now())
     date_last_seen = Column(DateTime)
+
 
 Base.metadata.create_all(engine)
 session_factory = sessionmaker(bind=engine)

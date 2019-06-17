@@ -1,10 +1,11 @@
+from sqlalchemy import Column, ForeignKey, MetaData, String, create_engine
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import sessionmaker, scoped_session,relationship
-from sqlalchemy import create_engine, MetaData, String, Column, ForeignKey
-engine = create_engine('mssql+pyodbc://Tesseract:Te55eract@ESOLBRANCHLIVE')
+from sqlalchemy.orm import relationship, scoped_session, sessionmaker
+
+engine = create_engine("mssql+pyodbc://Tesseract:Te55eract@ESOLBRANCHLIVE")
 
 metadata = MetaData()
-metadata.reflect(engine, only=['SCCall','SCProd'])
+metadata.reflect(engine, only=["SCCall", "SCProd"])
 
 Base = automap_base(metadata=metadata)
 Base.prepare()
