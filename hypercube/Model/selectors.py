@@ -1,4 +1,5 @@
 from datetime import datetime as dt
+from datetime import timedelta as td
 
 
 def add_serial(session, table, serial):
@@ -72,3 +73,13 @@ def booked_in_today(tesseract_session, t_calls, t_prod):
         }
         for row in rows
     ]
+
+
+def daily_stats(tesseract_session, t_calls, t_prod):
+    rows = tesseract_session.query(t_calls, t_prod).join(t_prod, t_prod.Prod_Num == t_calls.Call_Prod_Num).filter(t_calls.Job_CDate.between(dt.now().date(), dt.now().date()+td(days=1)))
+    return [{
+        "call": row[0].Call_Num,
+        "product": row[1].Prod_Desc,
+        "repairDate": row[0].Job_CDate,
+        "employee": row[0].Call_Employ_Num
+    } for row in rows]
