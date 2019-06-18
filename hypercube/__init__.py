@@ -1,4 +1,4 @@
-__version__ = '0.1.0'
+__version__ = "0.1.0"
 
 import sched
 import threading
@@ -8,10 +8,14 @@ import hug
 
 from hypercube.Model.local_db import SerialOfInterest
 from hypercube.Model.local_db import Session as lsession
-from hypercube.Model.selectors import (add_serial, booked_in_today,
-                                       get_serials_of_interest,
-                                       unregister_interest,
-                                       update_serial_of_interest)
+from hypercube.Model.selectors import (
+    add_serial,
+    booked_in_today,
+    get_serials_of_interest,
+    unregister_interest,
+    update_serial_of_interest,
+    daily_stats
+)
 from hypercube.Model.tesseract_db import Call, Product
 from hypercube.Model.tesseract_db import Session as tsession
 
@@ -21,24 +25,27 @@ s = sched.scheduler(time.time, time.sleep)
 api = hug.API(__name__)
 api.http.add_middleware(hug.middleware.CORSMiddleware(api, max_age=10))
 
-@hug.post('/add')
-def add_register_interest(serial:hug.types.text):
+
+@hug.post("/add")
+def add_register_interest(serial: hug.types.text):
     session = lsession()
-    data = add_serial(session,SerialOfInterest,serial)
+    data = add_serial(session, SerialOfInterest, serial)
     lsession.remove()
     return data
 
-@hug.get('/read')
+
+@hug.get("/read")
 def fetch_serials():
     session = lsession()
 
-    data = get_serials_of_interest(session,SerialOfInterest)
+    data = get_serials_of_interest(session, SerialOfInterest)
     lsession.remove()
 
     return data
 
-@hug.post('/remove')
-def remove_serial(serial:hug.types.text):
+
+@hug.post("/remove")
+def remove_serial(serial: hug.types.text):
     session = lsession()
 
     data = unregister_interest(session, SerialOfInterest, serial)
@@ -46,16 +53,20 @@ def remove_serial(serial:hug.types.text):
 
     return data
 
-@hug.get('/update')
+
+@hug.get("/update")
 def update_soi():
     tesseract_session = tsession()
     local_session = lsession()
-    data = update_serial_of_interest(local_session,tesseract_session,SerialOfInterest,Call)
+    data = update_serial_of_interest(
+        local_session, tesseract_session, SerialOfInterest, Call
+    )
     tsession.remove()
     lsession.remove()
     return data
 
-@hug.get('/recent')
+
+@hug.get("/recent")
 def recently_added_calls():
     tesseract_session = tsession()
     data = booked_in_today(tesseract_session, Call, Product)
@@ -64,7 +75,14 @@ def recently_added_calls():
         return False
     return data
 
-
+@hug.get("/stats/today")
+def todays_stats():
+    tesseract_session = tsession()
+    data = daily_stats(tesseract_session, Call, Product)
+    tsession.remove()
+    if not data:
+        return False
+    return data
 
 def update_db():
     next_call = time.time()
@@ -72,10 +90,10 @@ def update_db():
         update_soi()
         next_call = next_call + 30
         time.sleep(next_call - time.time())
-    
+
 
 def main():
     timerThread = threading.Thread(target=update_db)
     timerThread.daemon = True
     timerThread.start()
-    hug.development_runner._start_api(api,'127.0.0.1', 8000, False, show_intro=False)
+    hug.development_runner._start_api(api, "127.0.0.1", 8000, False, show_intro=False)
