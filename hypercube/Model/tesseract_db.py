@@ -5,12 +5,13 @@ from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 engine = create_engine("mssql+pyodbc://Tesseract:Te55eract@ESOLBRANCHLIVE")
 
 metadata = MetaData()
-metadata.reflect(engine, only=["SCCall", "SCProd"])
+metadata.reflect(engine, only=["SCCall", "SCProd", "SCEmploy"])
 
 Base = automap_base(metadata=metadata)
 Base.prepare()
 Call = Base.classes.SCCall
 Product = Base.classes.SCProd
+Employ = Base.classes.SCEmploy
 
 session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory)

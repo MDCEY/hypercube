@@ -16,7 +16,7 @@ from hypercube.Model.selectors import (
     update_serial_of_interest,
     daily_stats
 )
-from hypercube.Model.tesseract_db import Call, Product
+from hypercube.Model.tesseract_db import Call, Product, Employ
 from hypercube.Model.tesseract_db import Session as tsession
 
 s = sched.scheduler(time.time, time.sleep)
@@ -78,7 +78,7 @@ def recently_added_calls():
 @hug.get("/stats/today")
 def todays_stats():
     tesseract_session = tsession()
-    data = daily_stats(tesseract_session, Call, Product)
+    data = daily_stats(tesseract_session, Call, Product, Employ)
     tsession.remove()
     if not data:
         return False
