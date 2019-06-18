@@ -1,6 +1,6 @@
 from datetime import datetime as dt
 from datetime import timedelta as td
-
+from sqlalchemy.sql import func
 
 def add_serial(session, table, serial):
     existing_serial = session.query(table).filter(table.serial_number == serial).count()
@@ -76,11 +76,30 @@ def booked_in_today(tesseract_session, t_calls, t_prod):
 
 
 def daily_stats(tesseract_session, t_calls, t_employee):
-    rows = tesseract_session.query(t_calls).filter(t_calls.Job_CDate.between(dt.now().date(), dt.now().date()+td(days=1)))
+    rows = tesseract_session.query(t_calls).filter(
+        t_calls.Job_CDate.between(dt.now().date(), dt.now().date() + td(days=1))
+    )
     engineers = set(row.Call_Employ_Num for row in rows)
-    data = [{
-        'engineer_name': tesseract_session.query(t_employee).filter(t_employee.Employ_Num == engineer).first().Employ_Name,
-        'total': tesseract_session.query(t_calls).filter(t_calls.Job_CDate.between(dt.now().date(), dt.now().date()+td(days=1))).filter(t_calls.Call_Employ_Num == engineer).count()
-    } for engineer in engineers]
+    data = [
+        {
+            "engineer_name": tesseract_session.query(t_employee)
+            .filter(t_employee.Employ_Num == engineer)
+            .first()
+            .Employ_Name,
+            "total": tesseract_session.query(t_calls)
+            .filter(
+                t_calls.Job_CDate.between(dt.now().date(), dt.now().date() + td(days=1))
+            )
+            .filter(t_calls.Call_Employ_Num == engineer)
+            .count(),
+        }
+        for engineer in engineers
+    ]
 
     return data
+
+def average_work_time(tesseract_session, t_fsr, product):
+    rows = tesseract_session.query(t_fsr).filter(t_fsr.FSR_Prod_Num == product).with_entities(func.avg(t_fsr.FSR_Work_Time).label('average_work_time')).one()
+    return [{
+        'averageTime': rows.average_work_time*60
+    }]
