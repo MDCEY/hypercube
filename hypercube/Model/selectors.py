@@ -77,9 +77,10 @@ def booked_in_today(tesseract_session, t_calls, t_prod):
 
 def daily_stats(tesseract_session, t_calls, t_prod):
     rows = tesseract_session.query(t_calls, t_prod).join(t_prod, t_prod.Prod_Num == t_calls.Call_Prod_Num).filter(t_calls.Job_CDate.between(dt.now().date(), dt.now().date()+td(days=1)))
-    return [{
-        "call": row[0].Call_Num,
-        "product": row[1].Prod_Desc,
-        "repairDate": row[0].Job_CDate,
-        "employee": row[0].Call_Employ_Num
-    } for row in rows]
+    engineers = set(row[0].Call_Employ_Num for row in rows)
+    data = [{
+        'Engineer': engineer,
+        'total': tesseract_session.query(t_calls, t_prod).join(t_prod, t_prod.Prod_Num == t_calls.Call_Prod_Num).filter(t_calls.Job_CDate.between(dt.now().date(), dt.now().date()+td(days=1))).filter(t_calls.Call_Employ_Num == engineer).count()
+    } for engineer in engineers]
+
+    return data
