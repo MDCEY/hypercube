@@ -79,7 +79,7 @@ def recently_added_calls():
 @hug.get("/stats/today")
 def todays_stats():
     tesseract_session = tsession()
-    data = daily_stats(tesseract_session, Call, Employ)
+    data = daily_stats(tesseract_session, Call, Employ, FSR)
     tsession.remove()
     if not data:
         return False
