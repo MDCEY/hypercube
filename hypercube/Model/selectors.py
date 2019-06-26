@@ -125,3 +125,18 @@ def __get_engineer_work_time(tesseract_session, t_fsr, engineer):
     
     return data
 
+def deadline(tesseract_session, t_calls, t_prod):
+    rows = (
+        tesseract_session.query(t_calls, t_prod)
+        .join(t_prod, t_prod.Prod_Num == t_calls.Call_Prod_Num)
+        .filter(t_calls.Call_Status == "WORK")
+        .filter(t_calls.Job_CDate == None)
+    )
+    return [{
+        "call": row[0].Call_Num,
+        "area": row[0].Call_Area_Code,
+        "product": row[1].Prod_Desc,
+        "dueDate": row[0].Call_InDate + td(days=int(row[1].Prod_Ref2) if row[1].Prod_Ref2 else 999)
+    }for row in rows]
+
+

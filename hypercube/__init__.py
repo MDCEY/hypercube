@@ -15,7 +15,8 @@ from hypercube.Model.selectors import (
     unregister_interest,
     update_serial_of_interest,
     daily_stats,
-    average_work_time
+    average_work_time,
+    deadline
 )
 from hypercube.Model.tesseract_db import Call, Product, Employ, FSR
 from hypercube.Model.tesseract_db import Session as tsession
@@ -89,6 +90,13 @@ def todays_stats():
 def fetch_average(product):
     session = tsession()
     data = average_work_time(session, FSR, product)
+    tsession.remove()
+    return data
+
+@hug.get("/deadline")
+def fetch_deadlines():
+    session = tsession()
+    data = deadline(session, Call, Product)
     tsession.remove()
     return data
 
