@@ -101,10 +101,12 @@ def daily_stats(tesseract_session, t_calls, t_employee, t_fsr):
     return data
 
 
-def average_work_time(tesseract_session, t_fsr, product):
+def average_work_time(tesseract_session, t_fsr, product, t_employee):
     rows = (
-        tesseract_session.query(t_fsr)
+        tesseract_session.query(t_fsr, t_employee)
+        .join(t_employee, t_employee.Employ_Num == t_fsr.FSR_Employ_Num)
         .filter(t_fsr.FSR_Prod_Num == product)
+        .filter(t_employee.Employ_Para.like("%BK"))
         .with_entities(func.avg(t_fsr.FSR_Work_Time).label("average_work_time"))
         .one()
     )

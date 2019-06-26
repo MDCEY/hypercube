@@ -89,7 +89,7 @@ def todays_stats():
 @hug.post("/average")
 def fetch_average(product):
     session = tsession()
-    data = average_work_time(session, FSR, product)
+    data = average_work_time(session, FSR, product, Employ)
     tsession.remove()
     return data
 
