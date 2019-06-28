@@ -26,6 +26,7 @@ from hypercube.Model.tesseract_db import Session as tsession
 
 
 api: API = API(__name__)
+api.http.add_middleware(CORSMiddleware(api, allow_origins=["http://127.0.0.1:8080"]))
 router = hug.route.API(__name__)
 
 
