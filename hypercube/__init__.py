@@ -22,21 +22,22 @@ from hypercube.Model.tesseract_db import Call, Product, Employ, FSR
 from hypercube.Model.tesseract_db import Session as tsession
 
 s = sched.scheduler(time.time, time.sleep)
+router = hug.route.API(__name__)
 
 
 api = hug.API(__name__)
 api.http.add_middleware(hug.middleware.CORSMiddleware(api, max_age=10))
 
 
-@hug.post("/add")
 def add_register_interest(serial: hug.types.text):
     session = lsession()
     data = add_serial(session, SerialOfInterest, serial)
     lsession.remove()
     return data
+router.post('/add')(add_register_interest)
 
 
-@hug.get("/read")
+    """
 def fetch_serials():
     session = lsession()
 
@@ -44,9 +45,10 @@ def fetch_serials():
     lsession.remove()
 
     return data
+router.get('/read')(fetch_serials)
 
 
-@hug.post("/remove")
+    Args:
 def remove_serial(serial: hug.types.text):
     session = lsession()
 
@@ -54,9 +56,10 @@ def remove_serial(serial: hug.types.text):
     lsession.remove()
 
     return data
+router.post('/remove')(remove_serial)
 
 
-@hug.get("/update")
+    Returns:
 def update_soi():
     tesseract_session = tsession()
     local_session = lsession()
@@ -66,18 +69,19 @@ def update_soi():
     tsession.remove()
     lsession.remove()
     return data
+router.get('/update')(update_soi)
 
 
-@hug.get("/recent")
+    """
 def recently_added_calls():
     tesseract_session = tsession()
     data = booked_in_today(tesseract_session, Call, Product)
     tsession.remove()
     if not data:
-        return False
+        return []
     return data
+router.get('/recent')(recently_added_calls)
 
-@hug.get("/stats/today")
 def todays_stats():
     tesseract_session = tsession()
     data = daily_stats(tesseract_session, Call, Employ, FSR)
@@ -85,20 +89,22 @@ def todays_stats():
     if not data:
         return False
     return data
+router.get('/stats/today')(todays_stats)
 
-@hug.post("/average")
+def fetch_average(product: hug.types.text):
 def fetch_average(product):
     session = tsession()
     data = average_work_time(session, FSR, product, Employ)
     tsession.remove()
     return data
+router.post('/average')(fetch_average)
 
-@hug.get("/deadline")
 def fetch_deadlines():
     session = tsession()
     data = deadline(session, Call, Product)
     tsession.remove()
     return data
+router.get('/deadline')(fetch_deadlines)
 
 def update_db():
     next_call = time.time()
