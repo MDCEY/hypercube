@@ -6,3 +6,5 @@ hypercube/__pycache__/__init__\.cpython-37\.pyc
 *.pyc
 
 hypercube\.egg-info/
+
+hypercube\.db
