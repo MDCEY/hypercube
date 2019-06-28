@@ -1,10 +1,9 @@
 from datetime import datetime as dt
 from datetime import timedelta as td
 from sqlalchemy.sql import func
-import typing
 
 
-def add_serial(session, table, serial) -> bool:
+def add_serial(session, table, serial):
     def __add_serial_to_local(session, table, serial):
         row = table(serial_number=serial)
         session.add(row)
