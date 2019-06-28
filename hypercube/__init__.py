@@ -24,11 +24,12 @@ from hypercube.Model.selectors import (
 from hypercube.Model.tesseract_db import Call, Product, Employ, FSR
 from hypercube.Model.tesseract_db import Session as tsession
 
-s = sched.scheduler(time.time, time.sleep)
+
+api: API = API(__name__)
 router = hug.route.API(__name__)
 
 
-api = hug.API(__name__)
+def add_register_interest(serial: hug.types.text):
     """Request a Serial Number to be added to the tracker.
 
     Args:
@@ -44,13 +45,13 @@ api = hug.API(__name__)
     return data
 router.post('/add')(add_register_interest)
 
+def fetch_serials():
     """Fetch all tracked serial numbers from the local database.
 
     Returns:
         Tracked serial numbers from database
 
     """
-def fetch_serials():
     session = lsession()
 
     data = get_serials_of_interest(session, SerialOfInterest)
@@ -59,6 +60,7 @@ def fetch_serials():
     return data
 router.get('/read')(fetch_serials)
 
+def remove_serial(serial: hug.types.text) -> None:
     """Remove Serial from the tracking list.
 
     Args:
@@ -76,6 +78,7 @@ router.get('/read')(fetch_serials)
     return data
 router.post('/remove')(remove_serial)
 
+def update_soi():
     """Request a scan of tesseract database for updates on the tracked serials.
 
     Returns:
@@ -92,13 +95,13 @@ router.post('/remove')(remove_serial)
     return data
 router.get('/update')(update_soi)
 
+def recently_added_calls():
     """Get a list of calls that have been created today.
 
     Returns:
         Calls created on the day of request
 
     """
-def recently_added_calls():
     tesseract_session = tsession()
     data = booked_in_today(tesseract_session, Call, Product)
     tsession.remove()
