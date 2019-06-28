@@ -4,14 +4,23 @@ from sqlalchemy.sql import func
 
 
 def add_serial(session, table, serial):
-    existing_serial = session.query(table).filter(table.serial_number == serial).count()
-    if existing_serial != 0:
-        return False
-    else:
+    def __add_serial_to_local(session, table, serial):
         row = table(serial_number=serial)
         session.add(row)
         session.commit()
+
+    def __serial_already_exists(session, table, serial):
+        if session.query(table).filter(table.serial_number == serial).count() == 0:
+            return True
+        else: 
+            return False
+
+    if __serial_already_exists(session, table, serial):
+        __add_serial_to_local(session, table,serial)
         return True
+    else:
+        return False
+
 
 
 def get_serials_of_interest(session, table):
@@ -28,6 +37,8 @@ def get_serials_of_interest(session, table):
         }
         for row in rows
     ]
+    # TODO: Consider adding some kind of verification
+    return None
 
 
 def unregister_interest(session, table, serial):
