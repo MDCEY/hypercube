@@ -8,3 +8,5 @@ hypercube/__pycache__/__init__\.cpython-37\.pyc
 hypercube\.egg-info/
 
 hypercube\.db
+
+\.mypy_cache/
