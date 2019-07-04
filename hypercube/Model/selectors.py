@@ -6,6 +6,11 @@ from typing import List, Dict, Any
 
 from sqlalchemy.sql import func
 
+from hypercube.Model.local_db import Session as local_session
+from hypercube.Model.tesseract_db import Session as tesseract_session
+from hypercube.Model.local_db import SerialOfInterest
+from hypercube.Model.tesseract_db import Call, Product, Employ, FSR
+
 
 def __date_calc(days_to_add: int = None) -> datetime.date:
     """Add defined value of days to the current date.
@@ -22,58 +27,37 @@ def __date_calc(days_to_add: int = None) -> datetime.date:
     return dt.now().date() + td(days=days_to_add)
 
 
-def add_serial(session, table, serial: str) -> bool:
+def add_serial(serial: str) -> bool:
     """Add a serial number to the table.
 
     Args:
-        session: The session for the hypercube_db
-        table: The Serial of interest table
         serial: The serial number to add to the table
 
     Returns:
         True if a serial number has been added. False otherwise
 
     """
-    def __add_serial_to_local(session, table, serial: str):
-        row = table(serial_number=serial)
-        session.add(row)
-        session.commit()
-
-    def __serial_already_exists(session, table, serial: str) -> bool:
-        """Check for an existing serial number in the table.
-
-        Args:
-            session: The session for the hypercube_db
-            table: The Serial of interest table
-            serial: The serial number to add to the table
-
-        Returns:
-            If Serial exists return True. Otherwise False
-
-        """
-        # TODO: The following statement is backwards
-        if session.query(table).filter(table.serial_number == serial).count():
-            return False
-        return True
-    # TODO: Code flow doesn't make sense
-    if __serial_already_exists(session, table, serial):
-        __add_serial_to_local(session, table, serial)
-        return True
-    return False
+    session = local_session()
+    if session.query(SerialOfInterest).filter().count():
+        local_session.remove()
+        return False
+    row = SerialOfInterest(serial_number=serial)
+    session.add(row)
+    session.commit()
+    local_session.remove()
+    return True
 
 
-def get_serials_of_interest(session, table) -> List[Dict[str, Any]]:
+def get_serials_of_interest() -> List[Dict[str, Any]]:
     """Fetch all serials of interest from the database.
-
-    Args:
-        session: The session for the hypercube_db
-        table: The Serial of interest table
 
     Returns:
         A list of all serial numbers along with when the unit was last seen.
 
     """
-    rows = session.query(table).all()
+    session = local_session()
+    rows = session.query(SerialOfInterest).all()
+    local_session.remove()
     return [
         {
             "id": row.id,
@@ -86,75 +70,70 @@ def get_serials_of_interest(session, table) -> List[Dict[str, Any]]:
     ]
 
 
-def unregister_interest(session, table, serial: str) -> bool:
+def unregister_interest(serial: str) -> bool:
     """Remove a serial number from the database.
 
     Args:
-        session: The session for the hypercube_db
-        table: The Serial of interest table
         serial: The serial number to add to the table
 
     Returns:
         True if the a row was found a deleted otherwise false
 
     """
-    row = session.query(table).filter(table.serial_number == serial).first()
+    session = local_session()
+    row = session.query(SerialOfInterest).filter(SerialOfInterest.serial_number == serial).first()
     if row:
         session.delete(row)
         session.commit()
+        session.remove()
         return True
+    local_session.remove()
     return False
 
 
-def update_serial_of_interest(local_session, tesseract_session,
-                              local_db, tesseract_db) -> List[Dict[str, Any]]:
+def update_serial_of_interest() -> List[Dict[str, Any]]:
     """Update the serial numbers of interest table from tesseract.
-
-    Args:
-        local_session: session to access the hypercube database
-        tesseract_session: session to access the tesseract database
-        local_db: points to serial of interest table
-        tesseract_db: points to the SCCall table within tesseract
 
     Returns:
         A list of all serial numbers along with when the unit was last seen.
 
     """
-    serials_of_interest = local_session.query(local_db).all()
+    l_session = local_session()
+    t_session = tesseract_session()
+
+    serials_of_interest = l_session.query(SerialOfInterest).all()
     for row in serials_of_interest:
         unit_history = (
-            tesseract_session.query(tesseract_db)
-            .filter(tesseract_db.Call_Ser_Num == row.serial_number)
-            .order_by(tesseract_db.Call_Num.desc())
+            t_session.query(Call)
+            .filter(Call.Call_Ser_Num == row.serial_number)
+            .order_by(Call.Call_Num.desc())
             .first()
         )
         if unit_history:
             row.date_last_seen = unit_history.Call_InDate
-            local_session.commit()
+            l_session.commit()
+    local_session.remove()
+    tesseract_session.remove()
+    return get_serials_of_interest()
 
-    return get_serials_of_interest(local_session, local_db)
 
-
-def booked_in_today(tesseract_session, t_calls, t_prod) -> List[Dict[str, Any]]:
+def booked_in_today() -> List[Dict[str, Any]]:
     """Fetch all calls that have been created today.
-
-    Args:
-        tesseract_session: Points to the tesseract session
-        t_calls: Tesseracts SCCall table
-        t_prod: Tesseracts SCProd table
 
     Returns:
         A list of Calls, serial numbers and product information
         of everything that was booked in today
 
     """
+    session = tesseract_session()
     rows = (
-        tesseract_session.query(t_calls, t_prod)
-        .join(t_prod, t_prod.Prod_Num == t_calls.Call_Prod_Num)
-        .filter(t_calls.Call_InDate >= dt.now().date())
-        .filter(t_calls.Call_Status == "WORK")
-        .order_by(t_calls.Call_Num.desc())
+        session.query(Call, Product)
+        .join(Product, Product.Prod_Num == Call.Call_Prod_Num)
+        .filter(Call.Call_InDate >= dt.now().date())
+        .filter(Call.Call_Status == "WORK")
+        .order_by(Call.Call_Num.desc())
     )
+    tesseract_session.remove()
     return [
         {
             "call": row[0].Call_Num,
@@ -166,73 +145,65 @@ def booked_in_today(tesseract_session, t_calls, t_prod) -> List[Dict[str, Any]]:
     ]
 
 
-def daily_stats(tesseract_session, t_calls, t_employee, t_fsr) -> List[Dict[str, Any]]:
+def daily_stats() -> List[Dict[str, Any]]:
     """Fetch Engineers repair stats for current day.
-
-    Args:
-        Tesseract_session: Points to the tesseract session
-        t_calls: Tesseracts SCCall table
-        t_employee: Tesseracts SCEmploy table
-        t_fsr: Tesseracts SCFsr table
 
     Returns:
         A list of engineer's repairs for the current date, and the total time spent
          according to service reports
 
     """
-    rows = tesseract_session.query(t_calls).filter(
-        t_calls.Job_CDate.between(__date_calc(), __date_calc(1)))
+    session = tesseract_session()
+    rows = session.query(Call).filter(
+        Call.Job_CDate.between(__date_calc(), __date_calc(1)))
     engineers = set(row.Call_Employ_Num for row in rows)
     data = [
         {
-            "engineer_name": tesseract_session.query(t_employee)
-                             .filter(t_employee.Employ_Num == engineer)
+            "engineer_name": session.query(Employ)
+                             .filter(Employ.Employ_Num == engineer)
                              .first()
                              .Employ_Name,
-            "total": tesseract_session.query(t_calls)
-                     .filter(t_calls.Job_CDate.between(__date_calc(), __date_calc(1)))
-                     .filter(t_calls.Call_Employ_Num == engineer)
+            "total": session.query(Call)
+                     .filter(Call.Job_CDate.between(__date_calc(), __date_calc(1)))
+                     .filter(Call.Call_Employ_Num == engineer)
                      .count(),
-            "work_time": __get_engineer_work_time(tesseract_session,
-                                                  t_fsr, engineer),
+            "work_time": __get_engineer_work_time(engineer),
         }
         for engineer in engineers
     ]
+    tesseract_session.remove()
     return data
 
 
-def average_work_time(tesseract_session, t_fsr, product: str, t_employee) -> List[Dict[str, float]]:
+def average_work_time(product: str) -> List[Dict[str, float]]:
     """Fetch the average time it takes to repair a unit.
 
     Args:
-        tesseract_session: Points to the current tesseract database session
-        t_fsr: Tessereact SCFsr table
         product: The product code to get the average time off
-        t_employee: Tesseracts SCEmploy table
 
     Returns:
         The average time it takes for an engineer to repair an product
 
     """
+    session = tesseract_session()
     rows = (
-        tesseract_session.query(t_fsr, t_employee)
-        .join(t_employee, t_employee.Employ_Num == t_fsr.FSR_Employ_Num)
-        .filter(t_fsr.FSR_Prod_Num == product)
-        .filter(t_employee.Employ_Para.like("%BK"))
+        session.query(FSR, Employ)
+        .join(Employ, Employ.Employ_Num == FSR.FSR_Employ_Num)
+        .filter(FSR.FSR_Prod_Num == product)
+        .filter(Employ.Employ_Para.like("%BK"))
         .with_entities(
-            func.avg(t_fsr.FSR_Work_Time).label("average_work_time")
+            func.avg(FSR.FSR_Work_Time).label("average_work_time")
         )
         .one()
     )
+    tesseract_session.remove()
     return [{"averageTime": rows.average_work_time * 60}]
 
 
-def __get_engineer_work_time(tesseract_session, t_fsr, engineer: str) -> float:
+def __get_engineer_work_time(engineer: str) -> float:
     """Fetch the overall work time of a specified engineer with todays date.
 
     Args:
-        tesseract_session: Points to the current tesseract database session
-        t_fsr: Tesseracts SCFsr table
         engineer: The selected engineer to retrieve information off
 
     Returns:
@@ -240,38 +211,37 @@ def __get_engineer_work_time(tesseract_session, t_fsr, engineer: str) -> float:
 
     """
     # TODO: If none then 0
+    session = tesseract_session()
     data = (
-        tesseract_session.query(func.sum(
-            t_fsr.FSR_Work_Time).label("Work_time"))
+        session.query(func.sum(
+            FSR.FSR_Work_Time).label("Work_time"))
         .filter(
-            t_fsr.FSR_Complete_Date.between(
+            FSR.FSR_Complete_Date.between(
                 __date_calc(), __date_calc(1)
             )
         )
-        .filter(t_fsr.FSR_Employ_Num == engineer)
+        .filter(FSR.FSR_Employ_Num == engineer)
         .first()[0]
     )
+    tesseract_session.remove()
     return data
 
 
-def deadline(tesseract_session, t_calls, t_prod) -> List[Dict[str, Any]]:
+def deadline() -> List[Dict[str, Any]]:
     """Fetch a list of all open calls and the time it has to be repaired by.
-
-    Args:
-        tesseract_session: Points to the current tesseract database session
-        t_calls: Tesseracts SCCall table
-        t_prod: Tesseracts SCProd table
 
     Returns:
         A list of calls with the product, area and due dates
 
     """
+    session = tesseract_session()
     rows = (
-        tesseract_session.query(t_calls, t_prod)
-        .join(t_prod, t_prod.Prod_Num == t_calls.Call_Prod_Num)
-        .filter(t_calls.Call_Status == "WORK")
-        .filter(t_calls.Job_CDate is None)
+        session.query(Call, Product)
+        .join(Product, Product.Prod_Num == Call.Call_Prod_Num)
+        .filter(Call.Call_Status == "WORK")
+        .filter(Call.Job_CDate is None)
     )
+    tesseract_session.remove()
     return [{
         "call": row[0].Call_Num,
         "area": row[0].Call_Area_Code,
