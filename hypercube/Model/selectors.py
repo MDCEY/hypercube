@@ -1,9 +1,6 @@
 """Funcationality that the API calls on. AKA the brain."""
 from datetime import datetime as dt
-import datetime
 from datetime import timedelta as td
-from typing import List, Dict, Any
-
 from sqlalchemy.sql import func
 
 from hypercube.Model.local_db import Session as local_session
@@ -12,14 +9,14 @@ from hypercube.Model.local_db import SerialOfInterest
 from hypercube.Model.tesseract_db import Call, Product, Employ, FSR
 
 
-def __date_calc(days_to_add: int = None) -> datetime.date:
+def __date_calc(days_to_add: int = None):
     """Add defined value of days to the current date.
 
     Args:
         days_to_add: Amount of days to add to the current date
 
     Returns:
-        Date after days_to_add has been applied
+        datetime.date: Date after days_to_add has been applied
 
     """
     if not days_to_add:
@@ -27,14 +24,14 @@ def __date_calc(days_to_add: int = None) -> datetime.date:
     return dt.now().date() + td(days=days_to_add)
 
 
-def add_serial(serial: str) -> bool:
+def add_serial(serial: str):
     """Add a serial number to the table.
 
     Args:
         serial: The serial number to add to the table
 
     Returns:
-        True if a serial number has been added. False otherwise
+        bool: True if a serial number has been added. False otherwise
 
     """
     session = local_session()
@@ -48,11 +45,11 @@ def add_serial(serial: str) -> bool:
     return True
 
 
-def get_serials_of_interest() -> List[Dict[str, Any]]:
+def get_serials_of_interest():
     """Fetch all serials of interest from the database.
 
     Returns:
-        A list of all serial numbers along with when the unit was last seen.
+        List[Dict[str,Any]: A list of all serial numbers along with when the unit was last seen.
 
     """
     session = local_session()
@@ -70,14 +67,14 @@ def get_serials_of_interest() -> List[Dict[str, Any]]:
     ]
 
 
-def unregister_interest(serial: str) -> bool:
+def unregister_interest(serial: str):
     """Remove a serial number from the database.
 
     Args:
         serial: The serial number to add to the table
 
     Returns:
-        True if the a row was found a deleted otherwise false
+        bool: True if the a row was found a deleted otherwise false
 
     """
     session = local_session()
@@ -91,11 +88,11 @@ def unregister_interest(serial: str) -> bool:
     return False
 
 
-def update_serial_of_interest() -> List[Dict[str, Any]]:
+def update_serial_of_interest():
     """Update the serial numbers of interest table from tesseract.
 
     Returns:
-        A list of all serial numbers along with when the unit was last seen.
+        List[Dict[str,Any]: A list of all serial numbers along with when the unit was last seen.
 
     """
     l_session = local_session()
@@ -117,12 +114,13 @@ def update_serial_of_interest() -> List[Dict[str, Any]]:
     return get_serials_of_interest()
 
 
-def booked_in_today() -> List[Dict[str, Any]]:
+def booked_in_today():
     """Fetch all calls that have been created today.
 
     Returns:
-        A list of Calls, serial numbers and product information
-        of everything that was booked in today
+        List[Dict[str,Any]: A list of Calls, serial numbers
+        and product information of everything that was booked in today
+
 
     """
     session = tesseract_session()
@@ -145,12 +143,13 @@ def booked_in_today() -> List[Dict[str, Any]]:
     ]
 
 
-def daily_stats() -> List[Dict[str, Any]]:
+def daily_stats():
     """Fetch Engineers repair stats for current day.
 
     Returns:
-        A list of engineer's repairs for the current date, and the total time spent
-         according to service reports
+       List[Dict[str,Any]: A list of engineer's repairs
+       for the current date, and the total time spent
+       according to service reports
 
     """
     session = tesseract_session()
@@ -175,14 +174,14 @@ def daily_stats() -> List[Dict[str, Any]]:
     return data
 
 
-def average_work_time(product: str) -> List[Dict[str, float]]:
+def average_work_time(product: str):
     """Fetch the average time it takes to repair a unit.
 
     Args:
         product: The product code to get the average time off
 
     Returns:
-        The average time it takes for an engineer to repair an product
+        List[Dict[str, float]]: The average time it takes for an engineer to repair an product
 
     """
     session = tesseract_session()
@@ -200,14 +199,14 @@ def average_work_time(product: str) -> List[Dict[str, float]]:
     return [{"averageTime": rows.average_work_time * 60}]
 
 
-def __get_engineer_work_time(engineer: str) -> float:
+def __get_engineer_work_time(engineer: str):
     """Fetch the overall work time of a specified engineer with todays date.
 
     Args:
         engineer: The selected engineer to retrieve information off
 
     Returns:
-        Total hours work completed as a decimal, for the provided engineer
+        float: Total hours work completed as a decimal, for the provided engineer
 
     """
     # TODO: If none then 0
@@ -227,11 +226,12 @@ def __get_engineer_work_time(engineer: str) -> float:
     return data
 
 
-def deadline() -> List[Dict[str, Any]]:
+def deadline():
     """Fetch a list of all open calls and the time it has to be repaired by.
 
     Returns:
-        A list of calls with the product, area and due dates
+        List[Dict[str,Any]: A list of calls with the product,
+        area and due dates
 
     """
     session = tesseract_session()
