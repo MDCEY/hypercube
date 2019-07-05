@@ -148,14 +148,22 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">timedelta</span> <span class="k">as</span> <span class="n">td</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy.sql</span> <span class="k">import</span> <span class="n">func</span>
 
-<span class="kn">from</span> <span class="nn">hypercube.model.local_db</span> <span class="k">import</span> <span class="n">Session</span> <span class="k">as</span> <span class="n">local_session</span>
 <span class="kn">from</span> <span class="nn">hypercube.model.tesseract_db</span> <span class="k">import</span> <span class="n">Session</span> <span class="k">as</span> <span class="n">tesseract_session</span>
-<span class="kn">from</span> <span class="nn">hypercube.model.local_db</span> <span class="k">import</span> <span class="n">SerialOfInterest</span>
 <span class="kn">from</span> <span class="nn">hypercube.model.tesseract_db</span> <span class="k">import</span> <span class="n">Call</span><span class="p">,</span> <span class="n">Product</span><span class="p">,</span> <span class="n">Employ</span><span class="p">,</span> <span class="n">FSR</span>
 
 
 <span class="k">def</span> <span class="nf">__date_calc</span><span class="p">(</span><span class="n">days_to_add</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Add defined value of days to the current date.</span>
+    <span class="sd">&quot;&quot;&quot;Add the defined number of days to the current date.</span>
+
+<span class="sd">    Using the `days_to_add` add it to the current datetime to return</span>
+<span class="sd">    the date that it would be in the specified number of days.</span>
+
+<span class="sd">    :example:</span>
+<span class="sd">        &gt;&gt;&gt; __date_calc(days_to_add=1) == dt.now().date() + td(days=1)</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; __date_calc()  == dt.now().date()</span>
+<span class="sd">        True</span>
 
 <span class="sd">    :param days_to_add: Number of days to add to today.</span>
 <span class="sd">    :type days_to_add: int</span>
@@ -170,103 +178,12 @@
     <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="o">+</span> <span class="n">td</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days_to_add</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="add_serial"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.add_serial">[docs]</a><span class="k">def</span> <span class="nf">add_serial</span><span class="p">(</span><span class="n">serial</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Add a serial number to the table.</span>
-
-<span class="sd">    :param serial: The serial number to add to the table</span>
-<span class="sd">    :type serial: str</span>
-
-<span class="sd">    :return: True if a serial number has been added. False otherwise</span>
-<span class="sd">    :rtype: bool</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">session</span> <span class="o">=</span> <span class="n">local_session</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SerialOfInterest</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
-        <span class="n">local_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="n">row</span> <span class="o">=</span> <span class="n">SerialOfInterest</span><span class="p">(</span><span class="n">serial_number</span><span class="o">=</span><span class="n">serial</span><span class="p">)</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-    <span class="n">local_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-    <span class="k">return</span> <span class="kc">True</span></div>
-
-
-<div class="viewcode-block" id="get_serials_of_interest"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.get_serials_of_interest">[docs]</a><span class="k">def</span> <span class="nf">get_serials_of_interest</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Fetch all serials of interest from the database.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A list of all serial numbers along with when the unit was last seen.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">session</span> <span class="o">=</span> <span class="n">local_session</span><span class="p">()</span>
-    <span class="n">rows</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SerialOfInterest</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-    <span class="n">local_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="s2">&quot;serial_number&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">serial_number</span><span class="p">,</span>
-            <span class="s2">&quot;date_added&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">date_added</span><span class="p">,</span>
-            <span class="s2">&quot;date_last_seen&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">date_last_seen</span><span class="p">,</span>
-            <span class="s2">&quot;data_pulled_at&quot;</span><span class="p">:</span> <span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
-        <span class="p">}</span>
-        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span>
-    <span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="unregister_interest"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.unregister_interest">[docs]</a><span class="k">def</span> <span class="nf">unregister_interest</span><span class="p">(</span><span class="n">serial</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Remove a serial number from the database.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        serial (str): The serial number to add to the table</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        bool: True if the a row was found a deleted otherwise false</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">session</span> <span class="o">=</span> <span class="n">local_session</span><span class="p">()</span>
-    <span class="n">row</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SerialOfInterest</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">SerialOfInterest</span><span class="o">.</span><span class="n">serial_number</span> <span class="o">==</span> <span class="n">serial</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
-        <span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-        <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-        <span class="n">session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-        <span class="k">return</span> <span class="kc">True</span>
-    <span class="n">local_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-    <span class="k">return</span> <span class="kc">False</span></div>
-
-
-<div class="viewcode-block" id="update_serial_of_interest"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.update_serial_of_interest">[docs]</a><span class="k">def</span> <span class="nf">update_serial_of_interest</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Update the serial numbers of interest table from tesseract.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        List[Dict[str,Any]: A list of all serial numbers along with when the unit was last seen.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">l_session</span> <span class="o">=</span> <span class="n">local_session</span><span class="p">()</span>
-    <span class="n">t_session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
-
-    <span class="n">serials_of_interest</span> <span class="o">=</span> <span class="n">l_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SerialOfInterest</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">serials_of_interest</span><span class="p">:</span>
-        <span class="n">unit_history</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">t_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Call</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Call_Ser_Num</span> <span class="o">==</span> <span class="n">row</span><span class="o">.</span><span class="n">serial_number</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Call_Num</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span>
-            <span class="o">.</span><span class="n">first</span><span class="p">()</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">unit_history</span><span class="p">:</span>
-            <span class="n">row</span><span class="o">.</span><span class="n">date_last_seen</span> <span class="o">=</span> <span class="n">unit_history</span><span class="o">.</span><span class="n">Call_InDate</span>
-            <span class="n">l_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-    <span class="n">local_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-    <span class="n">tesseract_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">get_serials_of_interest</span><span class="p">()</span></div>
-
-
 <div class="viewcode-block" id="booked_in_today"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.booked_in_today">[docs]</a><span class="k">def</span> <span class="nf">booked_in_today</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Fetch all calls that have been created today.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        List[Dict[str,Any]: A list of Calls, serial numbers</span>
-<span class="sd">        and product information of everything that was booked in today</span>
-
+<span class="sd">    :return: A list of Calls, serial numbers</span>
+<span class="sd">             and product information of everything that was booked in today</span>
+<span class="sd">    :rtype: list[ dict[ str, any]]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
@@ -292,10 +209,10 @@
 <div class="viewcode-block" id="daily_stats"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.daily_stats">[docs]</a><span class="k">def</span> <span class="nf">daily_stats</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Fetch Engineers repair stats for current day.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">       List[Dict[str,Any]: A list of engineer&#39;s repairs</span>
-<span class="sd">       for the current date, and the total time spent</span>
-<span class="sd">       according to service reports</span>
+<span class="sd">    :return: A list of engineer&#39;s repairs</span>
+<span class="sd">             for the current date, and the total time spent</span>
+<span class="sd">             according to service reports</span>
+<span class="sd">    :rtype: list[ dict[ str, any]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
@@ -323,11 +240,12 @@
 <div class="viewcode-block" id="average_work_time"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.average_work_time">[docs]</a><span class="k">def</span> <span class="nf">average_work_time</span><span class="p">(</span><span class="n">product</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Fetch the average time it takes to repair a unit.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        product (str): The product code to get the average time off</span>
+<span class="sd">    :param product: Material number of a piece of equipment</span>
+<span class="sd">    :type product: str</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        List[Dict[str, float]]: The average time it takes for an engineer to repair an product</span>
+<span class="sd">    :return:</span>
+<span class="sd">    :rtype: list[ dict[ str, float]]</span>
+
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
@@ -348,14 +266,14 @@
 <span class="k">def</span> <span class="nf">__get_engineer_work_time</span><span class="p">(</span><span class="n">engineer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Fetch the overall work time of a specified engineer with todays date.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        engineer (str): The selected engineer to retrieve information off</span>
+<span class="sd">    :param engineer: The engineer number that is being looked up</span>
+<span class="sd">    :type engineer: str</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        float: Total hours work completed as a decimal, for the provided engineer</span>
+<span class="sd">    :return: Total hours work completed as a decimal, for the provided engineer</span>
+<span class="sd">    :rtype: float</span>
 
 <span class="sd">    Todo:</span>
-<span class="sd">        * If none then 0</span>
+<span class="sd">        * If no record exists, None is returned. I need this to be a zero</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
@@ -372,9 +290,9 @@
 <div class="viewcode-block" id="deadline"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.deadline">[docs]</a><span class="k">def</span> <span class="nf">deadline</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Fetch a list of all open calls and the time it has to be repaired by.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        List[Dict[str,Any]: A list of calls with the product,</span>
-<span class="sd">        area and due dates</span>
+<span class="sd">    :return: A list of calls with the product,</span>
+<span class="sd">             area and due dates</span>
+<span class="sd">    :rtype: list[ dict[ str, any]]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>

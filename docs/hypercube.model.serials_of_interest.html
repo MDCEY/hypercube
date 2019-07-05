@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hypercube.model.selectors module &mdash; hypercube  documentation</title>
+  <title>hypercube.model.serials_of_interest package &mdash; hypercube  documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="hypercube.model.tesseract_db module" href="hypercube.model.tesseract_db.html" />
-    <link rel="prev" title="hypercube.model.local_db module" href="hypercube.model.local_db.html" /> 
+    <link rel="next" title="hypercube.model.local_db module" href="hypercube.model.local_db.html" />
+    <link rel="prev" title="hypercube.model package" href="hypercube.model.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,8 +82,8 @@
 <li class="toctree-l1 current"><a class="reference internal" href="hypercube.html">hypercube package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="hypercube.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="hypercube.model.html">hypercube.model package</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="hypercube.model.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="hypercube.model.html#submodules">Submodules</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="hypercube.model.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hypercube.model.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hypercube.model.html#module-hypercube.model">Module contents</a></li>
 </ul>
 </li>
@@ -141,13 +141,13 @@
         
           <li><a href="hypercube.model.html">hypercube.model package</a> &raquo;</li>
         
-      <li>hypercube.model.selectors module</li>
+      <li>hypercube.model.serials_of_interest package</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/hypercube.model.selectors.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/hypercube.model.serials_of_interest.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -160,34 +160,68 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-hypercube.model.selectors">
-<span id="hypercube-model-selectors-module"></span><h1>hypercube.model.selectors module<a class="headerlink" href="#module-hypercube.model.selectors" title="Permalink to this headline">¶</a></h1>
-<p>Funcationality that the API calls on. AKA the brain.</p>
+  <div class="section" id="hypercube-model-serials-of-interest-package">
+<h1>hypercube.model.serials_of_interest package<a class="headerlink" href="#hypercube-model-serials-of-interest-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-hypercube.model.serials_of_interest">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hypercube.model.serials_of_interest" title="Permalink to this headline">¶</a></h2>
+<p>All logic relating to the serials of interest are contained within.</p>
+<p>Log serial numbers that have been highlighted as problematic.
+Scan Tesseracts database for updates on when the last call was</p>
 <dl class="function">
-<dt id="hypercube.model.selectors.average_work_time">
-<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">average_work_time</code><span class="sig-paren">(</span><em class="sig-param">product</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#average_work_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.average_work_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fetch the average time it takes to repair a unit.</p>
+<dt id="hypercube.model.serials_of_interest.add">
+<code class="sig-prename descclassname">hypercube.model.serials_of_interest.</code><code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">serial</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/serials_of_interest.html#add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.serials_of_interest.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a serial number to the table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>product</strong> (<em>str</em>) – Material number of a piece of equipment</p>
+<dd class="field-odd"><p><strong>serial</strong> (<em>str</em>) – The serial number to add to the table</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>True if a serial number has been added. False otherwise</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list[ dict[ str, float]]</p>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
-<dt id="hypercube.model.selectors.booked_in_today">
-<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">booked_in_today</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#booked_in_today"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.booked_in_today" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fetch all calls that have been created today.</p>
+<dt id="hypercube.model.serials_of_interest.delete">
+<code class="sig-prename descclassname">hypercube.model.serials_of_interest.</code><code class="sig-name descname">delete</code><span class="sig-paren">(</span><em class="sig-param">serial</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/serials_of_interest.html#delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.serials_of_interest.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a serial number from the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>serial</strong> (<em>str</em>) – Serial number for removal</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if successful. Otherwise false</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hypercube.model.serials_of_interest.read">
+<code class="sig-prename descclassname">hypercube.model.serials_of_interest.</code><code class="sig-name descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/serials_of_interest.html#read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.serials_of_interest.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all serials of interest from the database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A list of Calls, serial numbers
-and product information of everything that was booked in today</p>
+<dd class="field-odd"><p>A list of all serial numbers along with when the unit was last seen.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list[ dict[ str: any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hypercube.model.serials_of_interest.update">
+<code class="sig-prename descclassname">hypercube.model.serials_of_interest.</code><code class="sig-name descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/serials_of_interest.html#update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.serials_of_interest.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the serial numbers of interest table from tesseract.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list of all serial numbers along with when the unit was last seen.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>list[ dict[ str, any]]</p>
@@ -195,37 +229,7 @@ and product information of everything that was booked in today</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="hypercube.model.selectors.daily_stats">
-<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">daily_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#daily_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.daily_stats" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fetch Engineers repair stats for current day.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A list of engineer’s repairs
-for the current date, and the total time spent
-according to service reports</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>list[ dict[ str, any]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="hypercube.model.selectors.deadline">
-<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">deadline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#deadline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.deadline" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fetch a list of all open calls and the time it has to be repaired by.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A list of calls with the product,
-area and due dates</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>list[ dict[ str, any]]</p>
-</dd>
-</dl>
-</dd></dl>
-
+</div>
 </div>
 
 
@@ -236,10 +240,10 @@ area and due dates</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="hypercube.model.tesseract_db.html" class="btn btn-neutral float-right" title="hypercube.model.tesseract_db module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="hypercube.model.local_db.html" class="btn btn-neutral float-right" title="hypercube.model.local_db module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="hypercube.model.local_db.html" class="btn btn-neutral float-left" title="hypercube.model.local_db module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="hypercube.model.html" class="btn btn-neutral float-left" title="hypercube.model package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

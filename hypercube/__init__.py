@@ -10,11 +10,7 @@ from hug.middleware import CORSMiddleware
 
 from hypercube.model import serials_of_interest
 from hypercube.model.selectors import (
-    add_serial,
     booked_in_today,
-    get_serials_of_interest,
-    unregister_interest,
-    update_serial_of_interest,
     daily_stats,
     average_work_time,
     deadline,

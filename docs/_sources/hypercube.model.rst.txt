@@ -1,6 +1,13 @@
 hypercube.model package
 =======================
 
+Subpackages
+-----------
+
+.. toctree::
+
+   hypercube.model.serials_of_interest
+
 Submodules
 ----------
 

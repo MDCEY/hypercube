@@ -151,12 +151,9 @@
 <span class="kn">from</span> <span class="nn">hug</span> <span class="k">import</span> <span class="n">API</span>
 <span class="kn">from</span> <span class="nn">hug.middleware</span> <span class="k">import</span> <span class="n">CORSMiddleware</span>
 
+<span class="kn">from</span> <span class="nn">hypercube.model</span> <span class="k">import</span> <span class="n">serials_of_interest</span>
 <span class="kn">from</span> <span class="nn">hypercube.model.selectors</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">add_serial</span><span class="p">,</span>
     <span class="n">booked_in_today</span><span class="p">,</span>
-    <span class="n">get_serials_of_interest</span><span class="p">,</span>
-    <span class="n">unregister_interest</span><span class="p">,</span>
-    <span class="n">update_serial_of_interest</span><span class="p">,</span>
     <span class="n">daily_stats</span><span class="p">,</span>
     <span class="n">average_work_time</span><span class="p">,</span>
     <span class="n">deadline</span><span class="p">,</span>
@@ -167,10 +164,10 @@
 <span class="n">ROUTER</span> <span class="o">=</span> <span class="n">hug</span><span class="o">.</span><span class="n">route</span><span class="o">.</span><span class="n">API</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<span class="n">ROUTER</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/add&#39;</span><span class="p">)(</span><span class="n">add_serial</span><span class="p">)</span>
-<span class="n">ROUTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/read&#39;</span><span class="p">)(</span><span class="n">get_serials_of_interest</span><span class="p">)</span>
-<span class="n">ROUTER</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/remove&#39;</span><span class="p">)(</span><span class="n">unregister_interest</span><span class="p">)</span>
-<span class="n">ROUTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/update&#39;</span><span class="p">)(</span><span class="n">update_serial_of_interest</span><span class="p">)</span>
+<span class="n">ROUTER</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/add&#39;</span><span class="p">)(</span><span class="n">serials_of_interest</span><span class="o">.</span><span class="n">add</span><span class="p">)</span>
+<span class="n">ROUTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/read&#39;</span><span class="p">)(</span><span class="n">serials_of_interest</span><span class="o">.</span><span class="n">read</span><span class="p">)</span>
+<span class="n">ROUTER</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/remove&#39;</span><span class="p">)(</span><span class="n">serials_of_interest</span><span class="o">.</span><span class="n">delete</span><span class="p">)</span>
+<span class="n">ROUTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/update&#39;</span><span class="p">)(</span><span class="n">serials_of_interest</span><span class="o">.</span><span class="n">update</span><span class="p">)</span>
 <span class="n">ROUTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/recent&#39;</span><span class="p">)(</span><span class="n">booked_in_today</span><span class="p">)</span>
 <span class="n">ROUTER</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/stats/today&#39;</span><span class="p">)(</span><span class="n">daily_stats</span><span class="p">)</span>
 <span class="n">ROUTER</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/average&#39;</span><span class="p">)(</span><span class="n">average_work_time</span><span class="p">)</span>
@@ -181,7 +178,7 @@
     <span class="sd">&quot;&quot;&quot;Run a loop in the background to update the tracked serials database.&quot;&quot;&quot;</span>
     <span class="n">next_call</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">update_serial_of_interest</span><span class="p">()</span>
+        <span class="n">serials_of_interest</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
         <span class="n">next_call</span> <span class="o">=</span> <span class="n">next_call</span> <span class="o">+</span> <span class="mi">30</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">next_call</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span></div>
 
