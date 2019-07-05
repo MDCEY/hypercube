@@ -48,7 +48,7 @@ def main():
     timer_thread = threading.Thread(target=update_db)
     timer_thread.daemon = True
     timer_thread.start()
-    hug.development_runner._start_api(api, "127.0.0.1", 8000, False, show_intro=False)
+    hug.development_runner.hug(module=__name__, host="127.0.0.1", port=8000)
 
 
 if __name__ == "__main__":
