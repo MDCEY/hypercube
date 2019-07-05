@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>hypercube.model.selectors module &#8212; hypercube  documentation</title>
+    <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="hypercube.model.tesseract_db module" href="hypercube.model.tesseract_db.html" />
+    <link rel="prev" title="hypercube.model.local_db module" href="hypercube.model.local_db.html" />
+    <link rel="shortcut icon" type="image/png" href="_static/py.png" />
+    
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    
+     
+
+  </head><body>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="hypercube.model.tesseract_db.html" title="hypercube.model.tesseract_db module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="hypercube.model.local_db.html" title="hypercube.model.local_db module"
+             accesskey="P">previous</a> |</li>
+    <li><img src="_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+    <a href="index.html">hypercube  documentation</a> &#187;
+    
+
+          <li class="nav-item nav-item-1"><a href="hypercube.html" >hypercube package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="hypercube.model.html" accesskey="U">hypercube.model package</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="search.html" method="get">
+          <input placeholder="Quick search" type="text" name="q" />
+          <input type="submit" value="Go" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-hypercube.model.selectors">
+<span id="hypercube-model-selectors-module"></span><h1>hypercube.model.selectors module<a class="headerlink" href="#module-hypercube.model.selectors" title="Permalink to this headline">¶</a></h1>
+<p>Funcationality that the API calls on. AKA the brain.</p>
+<dl class="function">
+<dt id="hypercube.model.selectors.add_serial">
+<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">add_serial</code><span class="sig-paren">(</span><em class="sig-param">serial</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#add_serial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.add_serial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a serial number to the table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>serial</strong> (<em>str</em>) – The serial number to add to the table</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if a serial number has been added. False otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hypercube.model.selectors.average_work_time">
+<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">average_work_time</code><span class="sig-paren">(</span><em class="sig-param">product</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#average_work_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.average_work_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch the average time it takes to repair a unit.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>product (str): The product code to get the average time off</p>
+</dd>
+<dt>Returns:</dt><dd><p>List[Dict[str, float]]: The average time it takes for an engineer to repair an product</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hypercube.model.selectors.booked_in_today">
+<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">booked_in_today</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#booked_in_today"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.booked_in_today" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all calls that have been created today.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>List[Dict[str,Any]: A list of Calls, serial numbers
+and product information of everything that was booked in today</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hypercube.model.selectors.daily_stats">
+<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">daily_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#daily_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.daily_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch Engineers repair stats for current day.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>List[Dict[str,Any]: A list of engineer’s repairs
+for the current date, and the total time spent
+according to service reports</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hypercube.model.selectors.deadline">
+<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">deadline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#deadline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.deadline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch a list of all open calls and the time it has to be repaired by.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>List[Dict[str,Any]: A list of calls with the product,
+area and due dates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hypercube.model.selectors.get_serials_of_interest">
+<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">get_serials_of_interest</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#get_serials_of_interest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.get_serials_of_interest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all serials of interest from the database.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>A list of all serial numbers along with when the unit was last seen.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hypercube.model.selectors.unregister_interest">
+<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">unregister_interest</code><span class="sig-paren">(</span><em class="sig-param">serial</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#unregister_interest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.unregister_interest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a serial number from the database.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>serial (str): The serial number to add to the table</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: True if the a row was found a deleted otherwise false</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="hypercube.model.selectors.update_serial_of_interest">
+<code class="sig-prename descclassname">hypercube.model.selectors.</code><code class="sig-name descname">update_serial_of_interest</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/hypercube/model/selectors.html#update_serial_of_interest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hypercube.model.selectors.update_serial_of_interest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the serial numbers of interest table from tesseract.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>List[Dict[str,Any]: A list of all serial numbers along with when the unit was last seen.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="hypercube.model.local_db.html"
+                        title="previous chapter">hypercube.model.local_db module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="hypercube.model.tesseract_db.html"
+                        title="next chapter">hypercube.model.tesseract_db module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/hypercube.model.selectors.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="hypercube.model.tesseract_db.html" title="hypercube.model.tesseract_db module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="hypercube.model.local_db.html" title="hypercube.model.local_db module"
+             >previous</a> |</li>
+    <li><img src="_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+    <a href="index.html">hypercube  documentation</a> &#187;
+    
+
+          <li class="nav-item nav-item-1"><a href="hypercube.html" >hypercube package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="hypercube.model.html" >hypercube.model package</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="search.html" method="get">
+          <input placeholder="Quick search" type="text" name="q" />
+          <input type="submit" value="Go" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="copyright.html">Copyright</a> 2019, Kieran Wynne.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    Last updated on None.
+    
+    <br />
+
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.1.2.
+    </div>
+
+  </body>
+</html>

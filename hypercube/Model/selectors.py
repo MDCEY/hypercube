@@ -3,20 +3,21 @@ from datetime import datetime as dt
 from datetime import timedelta as td
 from sqlalchemy.sql import func
 
-from hypercube.Model.local_db import Session as local_session
-from hypercube.Model.tesseract_db import Session as tesseract_session
-from hypercube.Model.local_db import SerialOfInterest
-from hypercube.Model.tesseract_db import Call, Product, Employ, FSR
+from hypercube.model.local_db import Session as local_session
+from hypercube.model.tesseract_db import Session as tesseract_session
+from hypercube.model.local_db import SerialOfInterest
+from hypercube.model.tesseract_db import Call, Product, Employ, FSR
 
 
-def __date_calc(days_to_add: int = None):
+def __date_calc(days_to_add=None):
     """Add defined value of days to the current date.
 
-    Args:
-        days_to_add: Amount of days to add to the current date
+    :param days_to_add: Number of days to add to today.
+    :type days_to_add: int
 
-    Returns:
-        datetime.date: Date after days_to_add has been applied
+    :return: The datetime object after the days to add have been
+             applied
+    :rtype: datetime.date
 
     """
     if not days_to_add:
@@ -24,14 +25,14 @@ def __date_calc(days_to_add: int = None):
     return dt.now().date() + td(days=days_to_add)
 
 
-def add_serial(serial: str):
+def add_serial(serial):
     """Add a serial number to the table.
 
-    Args:
-        serial: The serial number to add to the table
+    :param serial: The serial number to add to the table
+    :type serial: str
 
-    Returns:
-        bool: True if a serial number has been added. False otherwise
+    :return: True if a serial number has been added. False otherwise
+    :rtype: bool
 
     """
     session = local_session()
@@ -49,7 +50,7 @@ def get_serials_of_interest():
     """Fetch all serials of interest from the database.
 
     Returns:
-        List[Dict[str,Any]: A list of all serial numbers along with when the unit was last seen.
+        A list of all serial numbers along with when the unit was last seen.
 
     """
     session = local_session()
@@ -67,11 +68,11 @@ def get_serials_of_interest():
     ]
 
 
-def unregister_interest(serial: str):
+def unregister_interest(serial):
     """Remove a serial number from the database.
 
     Args:
-        serial: The serial number to add to the table
+        serial (str): The serial number to add to the table
 
     Returns:
         bool: True if the a row was found a deleted otherwise false
@@ -174,11 +175,11 @@ def daily_stats():
     return data
 
 
-def average_work_time(product: str):
+def average_work_time(product):
     """Fetch the average time it takes to repair a unit.
 
     Args:
-        product: The product code to get the average time off
+        product (str): The product code to get the average time off
 
     Returns:
         List[Dict[str, float]]: The average time it takes for an engineer to repair an product
@@ -199,26 +200,23 @@ def average_work_time(product: str):
     return [{"averageTime": rows.average_work_time * 60}]
 
 
-def __get_engineer_work_time(engineer: str):
+def __get_engineer_work_time(engineer):
     """Fetch the overall work time of a specified engineer with todays date.
 
     Args:
-        engineer: The selected engineer to retrieve information off
+        engineer (str): The selected engineer to retrieve information off
 
     Returns:
         float: Total hours work completed as a decimal, for the provided engineer
 
+    Todo:
+        * If none then 0
+
     """
-    # TODO: If none then 0
     session = tesseract_session()
     data = (
-        session.query(func.sum(
-            FSR.FSR_Work_Time).label("Work_time"))
-        .filter(
-            FSR.FSR_Complete_Date.between(
-                __date_calc(), __date_calc(1)
-            )
-        )
+        session.query(func.sum(FSR.FSR_Work_Time).label("Work_time"))
+        .filter(FSR.FSR_Complete_Date.between(__date_calc(), __date_calc(1)))
         .filter(FSR.FSR_Employ_Num == engineer)
         .first()[0]
     )

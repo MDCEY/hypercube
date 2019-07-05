@@ -8,7 +8,7 @@ import hug
 from hug import API
 from hug.middleware import CORSMiddleware
 
-from hypercube.Model.selectors import (
+from hypercube.model.selectors import (
     add_serial,
     booked_in_today,
     get_serials_of_interest,

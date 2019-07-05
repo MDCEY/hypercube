@@ -1,0 +1,390 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>hypercube.model.selectors &#8212; hypercube  documentation</title>
+    <link rel="stylesheet" href="../../../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="shortcut icon" type="image/png" href="../../../_static/py.png" />
+    
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    
+     
+
+  </head><body>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><img src="../../../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+    <a href="../../../index.html">hypercube  documentation</a> &#187;
+    
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../hypercube.html" accesskey="U">hypercube</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../../../search.html" method="get">
+          <input placeholder="Quick search" type="text" name="q" />
+          <input type="submit" value="Go" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for hypercube.model.selectors</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Funcationality that the API calls on. AKA the brain.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span> <span class="k">as</span> <span class="n">dt</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">timedelta</span> <span class="k">as</span> <span class="n">td</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql</span> <span class="k">import</span> <span class="n">func</span>
+
+<span class="kn">from</span> <span class="nn">hypercube.model.local_db</span> <span class="k">import</span> <span class="n">Session</span> <span class="k">as</span> <span class="n">local_session</span>
+<span class="kn">from</span> <span class="nn">hypercube.model.tesseract_db</span> <span class="k">import</span> <span class="n">Session</span> <span class="k">as</span> <span class="n">tesseract_session</span>
+<span class="kn">from</span> <span class="nn">hypercube.model.local_db</span> <span class="k">import</span> <span class="n">SerialOfInterest</span>
+<span class="kn">from</span> <span class="nn">hypercube.model.tesseract_db</span> <span class="k">import</span> <span class="n">Call</span><span class="p">,</span> <span class="n">Product</span><span class="p">,</span> <span class="n">Employ</span><span class="p">,</span> <span class="n">FSR</span>
+
+
+<span class="k">def</span> <span class="nf">__date_calc</span><span class="p">(</span><span class="n">days_to_add</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add defined value of days to the current date.</span>
+
+<span class="sd">    :param days_to_add: Number of days to add to today.</span>
+<span class="sd">    :type days_to_add: int</span>
+
+<span class="sd">    :return: The datetime object after the days to add have been</span>
+<span class="sd">             applied</span>
+<span class="sd">    :rtype: datetime.date</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">days_to_add</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="o">+</span> <span class="n">td</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days_to_add</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="add_serial"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.add_serial">[docs]</a><span class="k">def</span> <span class="nf">add_serial</span><span class="p">(</span><span class="n">serial</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add a serial number to the table.</span>
+
+<span class="sd">    :param serial: The serial number to add to the table</span>
+<span class="sd">    :type serial: str</span>
+
+<span class="sd">    :return: True if a serial number has been added. False otherwise</span>
+<span class="sd">    :rtype: bool</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">local_session</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SerialOfInterest</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+        <span class="n">local_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">SerialOfInterest</span><span class="p">(</span><span class="n">serial_number</span><span class="o">=</span><span class="n">serial</span><span class="p">)</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="n">local_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="get_serials_of_interest"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.get_serials_of_interest">[docs]</a><span class="k">def</span> <span class="nf">get_serials_of_interest</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Fetch all serials of interest from the database.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of all serial numbers along with when the unit was last seen.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">local_session</span><span class="p">()</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SerialOfInterest</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">local_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">&quot;serial_number&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">serial_number</span><span class="p">,</span>
+            <span class="s2">&quot;date_added&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">date_added</span><span class="p">,</span>
+            <span class="s2">&quot;date_last_seen&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">date_last_seen</span><span class="p">,</span>
+            <span class="s2">&quot;data_pulled_at&quot;</span><span class="p">:</span> <span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span>
+    <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="unregister_interest"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.unregister_interest">[docs]</a><span class="k">def</span> <span class="nf">unregister_interest</span><span class="p">(</span><span class="n">serial</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Remove a serial number from the database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        serial (str): The serial number to add to the table</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the a row was found a deleted otherwise false</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">local_session</span><span class="p">()</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SerialOfInterest</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">SerialOfInterest</span><span class="o">.</span><span class="n">serial_number</span> <span class="o">==</span> <span class="n">serial</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">local_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="update_serial_of_interest"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.update_serial_of_interest">[docs]</a><span class="k">def</span> <span class="nf">update_serial_of_interest</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Update the serial numbers of interest table from tesseract.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[Dict[str,Any]: A list of all serial numbers along with when the unit was last seen.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">l_session</span> <span class="o">=</span> <span class="n">local_session</span><span class="p">()</span>
+    <span class="n">t_session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
+
+    <span class="n">serials_of_interest</span> <span class="o">=</span> <span class="n">l_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SerialOfInterest</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">serials_of_interest</span><span class="p">:</span>
+        <span class="n">unit_history</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">t_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Call</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Call_Ser_Num</span> <span class="o">==</span> <span class="n">row</span><span class="o">.</span><span class="n">serial_number</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Call_Num</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">unit_history</span><span class="p">:</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">date_last_seen</span> <span class="o">=</span> <span class="n">unit_history</span><span class="o">.</span><span class="n">Call_InDate</span>
+            <span class="n">l_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="n">local_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="n">tesseract_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">get_serials_of_interest</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="booked_in_today"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.booked_in_today">[docs]</a><span class="k">def</span> <span class="nf">booked_in_today</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Fetch all calls that have been created today.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[Dict[str,Any]: A list of Calls, serial numbers</span>
+<span class="sd">        and product information of everything that was booked in today</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Call</span><span class="p">,</span> <span class="n">Product</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Product</span><span class="p">,</span> <span class="n">Product</span><span class="o">.</span><span class="n">Prod_Num</span> <span class="o">==</span> <span class="n">Call</span><span class="o">.</span><span class="n">Call_Prod_Num</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Call_InDate</span> <span class="o">&gt;=</span> <span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Call_Status</span> <span class="o">==</span> <span class="s2">&quot;WORK&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Call_Num</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span>
+    <span class="p">)</span>
+    <span class="n">tesseract_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;call&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">Call_Num</span><span class="p">,</span>
+            <span class="s2">&quot;serial&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">Call_Ser_Num</span><span class="p">,</span>
+            <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">Prod_Desc</span><span class="p">,</span>
+            <span class="s2">&quot;addedAt&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">Call_InDate</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span>
+    <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="daily_stats"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.daily_stats">[docs]</a><span class="k">def</span> <span class="nf">daily_stats</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Fetch Engineers repair stats for current day.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">       List[Dict[str,Any]: A list of engineer&#39;s repairs</span>
+<span class="sd">       for the current date, and the total time spent</span>
+<span class="sd">       according to service reports</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Call</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">Call</span><span class="o">.</span><span class="n">Job_CDate</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">__date_calc</span><span class="p">(),</span> <span class="n">__date_calc</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="n">engineers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">Call_Employ_Num</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;engineer_name&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Employ</span><span class="p">)</span>
+                             <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Employ</span><span class="o">.</span><span class="n">Employ_Num</span> <span class="o">==</span> <span class="n">engineer</span><span class="p">)</span>
+                             <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                             <span class="o">.</span><span class="n">Employ_Name</span><span class="p">,</span>
+            <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Call</span><span class="p">)</span>
+                     <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Job_CDate</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">__date_calc</span><span class="p">(),</span> <span class="n">__date_calc</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+                     <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Call_Employ_Num</span> <span class="o">==</span> <span class="n">engineer</span><span class="p">)</span>
+                     <span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+            <span class="s2">&quot;work_time&quot;</span><span class="p">:</span> <span class="n">__get_engineer_work_time</span><span class="p">(</span><span class="n">engineer</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">engineer</span> <span class="ow">in</span> <span class="n">engineers</span>
+    <span class="p">]</span>
+    <span class="n">tesseract_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="average_work_time"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.average_work_time">[docs]</a><span class="k">def</span> <span class="nf">average_work_time</span><span class="p">(</span><span class="n">product</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Fetch the average time it takes to repair a unit.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        product (str): The product code to get the average time off</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[Dict[str, float]]: The average time it takes for an engineer to repair an product</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">FSR</span><span class="p">,</span> <span class="n">Employ</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Employ</span><span class="p">,</span> <span class="n">Employ</span><span class="o">.</span><span class="n">Employ_Num</span> <span class="o">==</span> <span class="n">FSR</span><span class="o">.</span><span class="n">FSR_Employ_Num</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">FSR</span><span class="o">.</span><span class="n">FSR_Prod_Num</span> <span class="o">==</span> <span class="n">product</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Employ</span><span class="o">.</span><span class="n">Employ_Para</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="s2">&quot;%BK&quot;</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">with_entities</span><span class="p">(</span>
+            <span class="n">func</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">FSR</span><span class="o">.</span><span class="n">FSR_Work_Time</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;average_work_time&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">one</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">tesseract_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;averageTime&quot;</span><span class="p">:</span> <span class="n">rows</span><span class="o">.</span><span class="n">average_work_time</span> <span class="o">*</span> <span class="mi">60</span><span class="p">}]</span></div>
+
+
+<span class="k">def</span> <span class="nf">__get_engineer_work_time</span><span class="p">(</span><span class="n">engineer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Fetch the overall work time of a specified engineer with todays date.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        engineer (str): The selected engineer to retrieve information off</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Total hours work completed as a decimal, for the provided engineer</span>
+
+<span class="sd">    Todo:</span>
+<span class="sd">        * If none then 0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">FSR</span><span class="o">.</span><span class="n">FSR_Work_Time</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Work_time&quot;</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">FSR</span><span class="o">.</span><span class="n">FSR_Complete_Date</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">__date_calc</span><span class="p">(),</span> <span class="n">__date_calc</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">FSR</span><span class="o">.</span><span class="n">FSR_Employ_Num</span> <span class="o">==</span> <span class="n">engineer</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">first</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">tesseract_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<div class="viewcode-block" id="deadline"><a class="viewcode-back" href="../../../hypercube.model.selectors.html#hypercube.model.selectors.deadline">[docs]</a><span class="k">def</span> <span class="nf">deadline</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Fetch a list of all open calls and the time it has to be repaired by.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[Dict[str,Any]: A list of calls with the product,</span>
+<span class="sd">        area and due dates</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">tesseract_session</span><span class="p">()</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Call</span><span class="p">,</span> <span class="n">Product</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Product</span><span class="p">,</span> <span class="n">Product</span><span class="o">.</span><span class="n">Prod_Num</span> <span class="o">==</span> <span class="n">Call</span><span class="o">.</span><span class="n">Call_Prod_Num</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Call_Status</span> <span class="o">==</span> <span class="s2">&quot;WORK&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Call</span><span class="o">.</span><span class="n">Job_CDate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">tesseract_session</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[{</span>
+        <span class="s2">&quot;call&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">Call_Num</span><span class="p">,</span>
+        <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">Call_Area_Code</span><span class="p">,</span>
+        <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">Prod_Desc</span><span class="p">,</span>
+        <span class="s2">&quot;dueDate&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">Call_InDate</span> <span class="o">+</span> <span class="n">td</span><span class="p">(</span>
+            <span class="n">days</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">Prod_Ref2</span><span class="p">)</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">Prod_Ref2</span> <span class="k">else</span> <span class="mi">999</span><span class="p">)</span>
+    <span class="p">}</span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><img src="../../../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+    <a href="../../../index.html">hypercube  documentation</a> &#187;
+    
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../hypercube.html" >hypercube</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../../../search.html" method="get">
+          <input placeholder="Quick search" type="text" name="q" />
+          <input type="submit" value="Go" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../../../copyright.html">Copyright</a> 2019, Kieran Wynne.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    Last updated on None.
+    
+    <br />
+
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.1.2.
+    </div>
+
+  </body>
+</html>
