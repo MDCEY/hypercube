@@ -8,6 +8,7 @@ import hug
 from hug import API
 from hug.middleware import CORSMiddleware
 
+from hypercube.model import serials_of_interest
 from hypercube.model.selectors import (
     add_serial,
     booked_in_today,
@@ -24,10 +25,10 @@ api.http.add_middleware(CORSMiddleware(api, allow_origins=["http://127.0.0.1:808
 ROUTER = hug.route.API(__name__)
 
 
-ROUTER.post('/add')(add_serial)
-ROUTER.get('/read')(get_serials_of_interest)
-ROUTER.post('/remove')(unregister_interest)
-ROUTER.get('/update')(update_serial_of_interest)
+ROUTER.post('/add')(serials_of_interest.add)
+ROUTER.get('/read')(serials_of_interest.read)
+ROUTER.post('/remove')(serials_of_interest.delete)
+ROUTER.get('/update')(serials_of_interest.update)
 ROUTER.get('/recent')(booked_in_today)
 ROUTER.get('/stats/today')(daily_stats)
 ROUTER.post('/average')(average_work_time)
@@ -38,7 +39,7 @@ def update_db():
     """Run a loop in the background to update the tracked serials database."""
     next_call = time.time()
     while True:
-        update_serial_of_interest()
+        serials_of_interest.update()
         next_call = next_call + 30
         time.sleep(next_call - time.time())
 
