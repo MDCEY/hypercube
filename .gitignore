@@ -10,3 +10,5 @@ hypercube\.egg-info/
 hypercube\.db
 
 \.mypy_cache/
+
+\.env

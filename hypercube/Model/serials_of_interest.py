@@ -6,10 +6,10 @@ Scan Tesseracts database for updates on when the last call was
 
 from datetime import datetime as dt
 
-from hypercube.model.local_db import Session as local_session
-from hypercube.model.local_db import SerialOfInterest
-from hypercube.model.tesseract_db import Session as tesseract_session
-from hypercube.model.tesseract_db import Call
+from .local_db import Session as local_session
+from .local_db import SerialOfInterest
+from .tesseract_db import Session as tesseract_session
+from .tesseract_db import Call
 
 
 def add(serial):

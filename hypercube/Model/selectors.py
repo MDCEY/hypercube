@@ -1,10 +1,14 @@
 """Funcationality that the API calls on. AKA the brain."""
 from datetime import datetime as dt
 from datetime import timedelta as td
-from sqlalchemy.sql import func
+import asyncio
+from sqlalchemy.sql import func, distinct
+from sqlalchemy.orm import Query, Load
+from sqlalchemy import and_
 
-from hypercube.model.tesseract_db import Session as tesseract_session
-from hypercube.model.tesseract_db import Call, Product, Employ, FSR
+
+from .tesseract_db import Session as tesseract_session
+from .tesseract_db import Call, Product, Employ, FSR, Site
 
 
 def __date_calc(days_to_add=None):
@@ -33,7 +37,7 @@ def __date_calc(days_to_add=None):
     return dt.now().date() + td(days=days_to_add)
 
 
-def booked_in_today():
+async def booked_in_today():
     """Fetch all calls that have been created today.
 
     :return: A list of Calls, serial numbers
@@ -42,26 +46,24 @@ def booked_in_today():
 
     """
     session = tesseract_session()
-    rows = (
-        session.query(Call, Product)
-        .join(Product, Product.Prod_Num == Call.Call_Prod_Num)
-        .filter(Call.Call_InDate >= dt.now().date())
-        .filter(Call.Call_Status == "WORK")
-        .order_by(Call.Call_Num.desc())
-    )
+    query = Query(Call, Product).join(Product, Product.Prod_Num == Call.Call_Prod_Num).filter(Call.Call_InDate >= dt.now().date()).filter(Call.Call_Status == "WORK").with_entities(Call.Call_Num, Call.Call_Ser_Num, Product.Prod_Desc, Call.Call_InDate).order_by(Call.Call_Num.desc()).limit(20)
+    result = session.execute(query)
+    data = []
+    if result.returns_rows:
+        result = result.fetchall()
+        for row in result:
+            await asyncio.sleep(0)
+            data.append({
+                'call': row[0],
+                'serial': row[1],
+                'product': row[2],
+                'addedAt': str(row[3])
+            })
     tesseract_session.remove()
-    return [
-        {
-            "call": row[0].Call_Num,
-            "serial": row[0].Call_Ser_Num,
-            "product": row[1].Prod_Desc,
-            "addedAt": row[0].Call_InDate,
-        }
-        for row in rows
-    ]
+    return data
 
 
-def daily_stats():
+async def daily_stats():
     """Fetch Engineers repair stats for current day.
 
     :return: A list of engineer's repairs
@@ -71,28 +73,54 @@ def daily_stats():
 
     """
     session = tesseract_session()
-    rows = session.query(Call).filter(
-        Call.Job_CDate.between(__date_calc(), __date_calc(1)))
-    engineers = set(row.Call_Employ_Num for row in rows)
-    data = [
-        {
-            "engineer_name": session.query(Employ)
-                             .filter(Employ.Employ_Num == engineer)
-                             .first()
-                             .Employ_Name,
-            "total": session.query(Call)
-                     .filter(Call.Job_CDate.between(__date_calc(), __date_calc(1)))
-                     .filter(Call.Call_Employ_Num == engineer)
-                     .count(),
-            "work_time": __get_engineer_work_time(engineer),
-        }
-        for engineer in engineers
-    ]
+    query =( 
+        Query([Call, FSR, Employ])
+        .join(Employ, Employ.Employ_Num == Call.Call_Employ_Num)
+        .join(FSR, and_(FSR.FSR_Call_Num == Call.Call_Num, Call.Call_Employ_Num == FSR.FSR_Employ_Num))
+        .filter(Call.Job_CDate.between(__date_calc(), __date_calc(1)))
+        .filter(Employ.Employ_Para.like('%BK'))
+        .filter(~Employ.Employ_Num.in_(['431','402']))
+        .with_entities(
+            func.count(distinct(Call.Call_Num)).label("total"),
+            func.sum(FSR.FSR_Work_Time).label("work_time"),
+            Employ.Employ_Name.label('engineer_name'))
+        .group_by(Employ.Employ_Name)
+        .order_by(Employ.Employ_Name)
+    )
+    
+    result = session.execute(query)
+    if result.returns_rows:
+        results = result.fetchall()
+        data = [{
+            "engineer_name": result[2].split(' ')[0],
+            "total": result[0],
+            "work_time": str(result[1])
+        } for result in results]
+    else:
+        data = []
+    await asyncio.sleep(0)
     tesseract_session.remove()
     return data
 
 
-def average_work_time(product):
+async def update_site(site_number):
+    session = tesseract_session()
+    query = Query(Site).filter(Site.Site_Num==site_number)
+    result = session.execute(query)
+    if result.returns_rows:
+        result=result.fetchone()
+        if result['SCSite_Site_Stock_Serialised'] == 'N':
+            result['SCSite_Site_Stock_Serialised'] = 'Y'
+            session.commit()
+            print(f"{result['SCSite_Site_Num']} is now serialized")
+        else:
+            print(f"{result['SCSite_Site_Num']} is already serialized")
+    tesseract_session.remove()
+
+
+
+
+async def average_work_time(product):
     """Fetch the average time it takes to repair a unit.
 
     :param product: Material number of a piece of equipment
@@ -104,6 +132,8 @@ def average_work_time(product):
 
     """
     session = tesseract_session()
+    await asyncio.sleep(0.05)
+
     rows = (
         session.query(FSR, Employ)
         .join(Employ, Employ.Employ_Num == FSR.FSR_Employ_Num)
@@ -114,11 +144,12 @@ def average_work_time(product):
         )
         .one()
     )
+    await asyncio.sleep(0.05)
     tesseract_session.remove()
     return [{"averageTime": rows.average_work_time * 60}]
 
 
-def __get_engineer_work_time(engineer):
+async def __get_engineer_work_time(engineer):
     """Fetch the overall work time of a specified engineer with todays date.
 
     :param engineer: The engineer number that is being looked up
@@ -132,14 +163,14 @@ def __get_engineer_work_time(engineer):
 
     """
     session = tesseract_session()
-    data = (
-        session.query(func.sum(FSR.FSR_Work_Time).label("Work_time"))
-        .filter(FSR.FSR_Complete_Date.between(__date_calc(), __date_calc(1)))
-        .filter(FSR.FSR_Employ_Num == engineer)
-        .first()[0]
-    )
+    query = Query(func.sum(FSR.FSR_Work_Time).label("Work_time")).filter(FSR.FSR_Complete_Date.between(__date_calc(), __date_calc(1))).filter(FSR.FSR_Employ_Num == engineer)
+    result = session.execute(query)
+    if result.returns_rows:
+        result = result.fetchone()[0]
     tesseract_session.remove()
-    return data
+    if not result:
+        result = 0
+    return result
 
 
 def deadline():

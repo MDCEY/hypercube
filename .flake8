@@ -1,3 +1,0 @@
-[flake8]
-
-ignore = E131, E501, E126
