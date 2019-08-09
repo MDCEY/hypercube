@@ -46,19 +46,31 @@ async def booked_in_today():
 
     """
     session = tesseract_session()
-    query = Query(Call, Product).join(Product, Product.Prod_Num == Call.Call_Prod_Num).filter(Call.Call_InDate >= dt.now().date()).filter(Call.Call_Status == "WORK").with_entities(Call.Call_Num, Call.Call_Ser_Num, Product.Prod_Desc, Call.Call_InDate).order_by(Call.Call_Num.desc()).limit(20)
+    query = (
+        Query(Call, Product)
+        .join(Product, Product.Prod_Num == Call.Call_Prod_Num)
+        .filter(Call.Call_InDate >= dt.now().date())
+        .filter(Call.Call_Status == "WORK")
+        .with_entities(
+            Call.Call_Num, Call.Call_Ser_Num, Product.Prod_Desc, Call.Call_InDate
+        )
+        .order_by(Call.Call_Num.desc())
+        .limit(20)
+    )
     result = session.execute(query)
     data = []
     if result.returns_rows:
         result = result.fetchall()
         for row in result:
             await asyncio.sleep(0)
-            data.append({
-                'call': row[0],
-                'serial': row[1],
-                'product': row[2],
-                'addedAt': str(row[3])
-            })
+            data.append(
+                {
+                    "call": row[0],
+                    "serial": row[1],
+                    "product": row[2],
+                    "addedAt": str(row[3]),
+                }
+            )
     tesseract_session.remove()
     return data
 
@@ -73,29 +85,38 @@ async def daily_stats():
 
     """
     session = tesseract_session()
-    query =( 
+    query = (
         Query([Call, FSR, Employ])
         .join(Employ, Employ.Employ_Num == Call.Call_Employ_Num)
-        .join(FSR, and_(FSR.FSR_Call_Num == Call.Call_Num, Call.Call_Employ_Num == FSR.FSR_Employ_Num))
+        .join(
+            FSR,
+            and_(
+                FSR.FSR_Call_Num == Call.Call_Num, Call.Call_Last_FSR_Num == FSR.FSR_Num
+            ),
+        )
         .filter(Call.Job_CDate.between(__date_calc(), __date_calc(1)))
-        .filter(Employ.Employ_Para.like('%BK'))
-        .filter(~Employ.Employ_Num.in_(['431','402']))
+        .filter(Employ.Employ_Para.like("%BK"))
+        .filter(~Employ.Employ_Num.in_(["431", "402"]))
         .with_entities(
-            func.count(distinct(Call.Call_Num)).label("total"),
+            func.count(FSR.FSR_Call_Num).label("total"),
             func.sum(FSR.FSR_Work_Time).label("work_time"),
-            Employ.Employ_Name.label('engineer_name'))
+            Employ.Employ_Name.label("engineer_name"),
+        )
         .group_by(Employ.Employ_Name)
         .order_by(Employ.Employ_Name)
     )
-    
+
     result = session.execute(query)
     if result.returns_rows:
         results = result.fetchall()
-        data = [{
-            "engineer_name": result[2].split(' ')[0],
-            "total": result[0],
-            "work_time": str(result[1])
-        } for result in results]
+        data = [
+            {
+                "engineer_name": result[2].split(" ")[0],
+                "total": result[0],
+                "work_time": str(result[1]),
+            }
+            for result in results
+        ]
     else:
         data = []
     await asyncio.sleep(0)
@@ -105,19 +126,17 @@ async def daily_stats():
 
 async def update_site(site_number):
     session = tesseract_session()
-    query = Query(Site).filter(Site.Site_Num==site_number)
+    query = Query(Site).filter(Site.Site_Num == site_number)
     result = session.execute(query)
     if result.returns_rows:
-        result=result.fetchone()
-        if result['SCSite_Site_Stock_Serialised'] == 'N':
-            result['SCSite_Site_Stock_Serialised'] = 'Y'
+        result = result.fetchone()
+        if result["SCSite_Site_Stock_Serialised"] == "N":
+            result["SCSite_Site_Stock_Serialised"] = "Y"
             session.commit()
             print(f"{result['SCSite_Site_Num']} is now serialized")
         else:
             print(f"{result['SCSite_Site_Num']} is already serialized")
     tesseract_session.remove()
-
-
 
 
 async def average_work_time(product):
@@ -139,9 +158,7 @@ async def average_work_time(product):
         .join(Employ, Employ.Employ_Num == FSR.FSR_Employ_Num)
         .filter(FSR.FSR_Prod_Num == product)
         .filter(Employ.Employ_Para.like("%BK"))
-        .with_entities(
-            func.avg(FSR.FSR_Work_Time).label("average_work_time")
-        )
+        .with_entities(func.avg(FSR.FSR_Work_Time).label("average_work_time"))
         .one()
     )
     await asyncio.sleep(0.05)
@@ -163,7 +180,11 @@ async def __get_engineer_work_time(engineer):
 
     """
     session = tesseract_session()
-    query = Query(func.sum(FSR.FSR_Work_Time).label("Work_time")).filter(FSR.FSR_Complete_Date.between(__date_calc(), __date_calc(1))).filter(FSR.FSR_Employ_Num == engineer)
+    query = (
+        Query(func.sum(FSR.FSR_Work_Time).label("Work_time"))
+        .filter(FSR.FSR_Complete_Date.between(__date_calc(), __date_calc(1)))
+        .filter(FSR.FSR_Employ_Num == engineer)
+    )
     result = session.execute(query)
     if result.returns_rows:
         result = result.fetchone()[0]
@@ -189,10 +210,13 @@ def deadline():
         .filter(Call.Job_CDate is None)
     )
     tesseract_session.remove()
-    return [{
-        "call": row[0].Call_Num,
-        "area": row[0].Call_Area_Code,
-        "product": row[1].Prod_Desc,
-        "dueDate": row[0].Call_InDate + td(
-            days=int(row[1].Prod_Ref2) if row[1].Prod_Ref2 else 999)
-    }for row in rows]
+    return [
+        {
+            "call": row[0].Call_Num,
+            "area": row[0].Call_Area_Code,
+            "product": row[1].Prod_Desc,
+            "dueDate": row[0].Call_InDate
+            + td(days=int(row[1].Prod_Ref2) if row[1].Prod_Ref2 else 999),
+        }
+        for row in rows
+    ]

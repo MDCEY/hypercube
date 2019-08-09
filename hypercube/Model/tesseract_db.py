@@ -18,7 +18,8 @@ engine = create_engine("mssql+pymssql://", creator=connect)
 
 metadata = MetaData()
 metadata.reflect(
-    engine, only=["SCCall", "SCProd", "SCEmploy", "SCFSR", "SCPart", "SPStock", "SCSite"]
+    engine,
+    only=["SCCall", "SCProd", "SCEmploy", "SCFSR", "SCPart", "SPStock", "SCSite"],
 )
 
 Base = automap_base(metadata=metadata)

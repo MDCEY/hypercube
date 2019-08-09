@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 pytest = "*"
 pylint = "*"
+black = "*"
 
 [packages]
 sqlalchemy = "*"
@@ -20,3 +21,6 @@ python_version = "3.7"
 
 [scripts]
 serve="python hypercube/__init__.py"
+
+[pipenv]
+allow_prereleases = true

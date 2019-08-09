@@ -66,7 +66,11 @@ def delete(serial):
 
     """
     session = local_session()
-    row = session.query(SerialOfInterest).filter(SerialOfInterest.serial_number == serial).first()
+    row = (
+        session.query(SerialOfInterest)
+        .filter(SerialOfInterest.serial_number == serial)
+        .first()
+    )
     if row:
         session.delete(row)
         session.commit()
