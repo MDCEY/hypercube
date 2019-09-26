@@ -16,6 +16,8 @@ from contextlib import suppress
 import traceback
 import tracemalloc
 import requests
+import socket
+import urllib3
 
 # from model import serials_of_interest
 from model.selectors import (
@@ -54,15 +56,39 @@ async def pusher_update():
             if not last_call == data_out:
                 data_age.set(f"Data last updated at\n{str(dt.now())}")
                 try:
+                    print(json.dumps(data_out))
                     channels_client.trigger("hypercube", "update", json.dumps(data_out))
                 except requests.exceptions.ProxyError:
                     print("Proxy connection failed. Retrying in 15 seconds")
                     await asyncio.sleep(15)
                     continue
                 last_call = data_out
-            await asyncio.sleep(15)
-        await asyncio.sleep(1)
+            elif  pusher_force_val.get():
+                print(f"{dt.now()}: Forced")
+                data_age.set(f"Data last updated at\n{str(dt.now())}")
+                try:
+                    channels_client.trigger("hypercube", "update", json.dumps(data_out))
+                except requests.exceptions.ProxyError:
+                    print("Proxy connection failed. Retrying in 15 seconds")
+                    await asyncio.sleep(15)
+                    continue
+                except socket.timeout:
+                    print("Connection Timedout. Retrying in 15 seconds")
+                    await asyncio.sleep(15)
+                    continue
+                except urllib3.exceptions.ReadTimeoutError:
+                    print("Connection Timedout. Retrying in 15 seconds")
+                    await asyncio.sleep(15)
+                    continue                   
+                except requests.exceptions.ReadTimeout:
+                    print("Connection Timedout. Retrying in 15 seconds")
+                    await asyncio.sleep(15)
+                    continue   
+                last_call = data_out
+            await asyncio.sleep(30) 
+        await asyncio.sleep(30)
 
+        
 
 def toggle_pusher(value):
     global active
@@ -99,6 +125,12 @@ pusher_radio_2 = Radiobutton(
     pusher_group, text="Off", value=False, variable=pusher_radio_val
 )
 pusher_radio_2.pack(expand=1, side=LEFT)
+
+pusher_force_val = BooleanVar()
+pusher_force = Checkbutton(
+    pusher_group, text="Force", variable=pusher_force_val, onvalue=True, offvalue=False
+)
+pusher_force.pack(side=LEFT)
 
 # Serialize Site
 site_group = LabelFrame(root, text="Site Add", padx=5, pady=5)

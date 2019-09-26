@@ -98,7 +98,7 @@ async def daily_stats():
         .filter(Employ.Employ_Para.like("%BK"))
         .filter(~Employ.Employ_Num.in_(["431", "402"]))
         .with_entities(
-            func.count(FSR.FSR_Call_Num).label("total"),
+            func.count(Call.Call_Num).label("total"),
             func.sum(FSR.FSR_Work_Time).label("work_time"),
             Employ.Employ_Name.label("engineer_name"),
         )

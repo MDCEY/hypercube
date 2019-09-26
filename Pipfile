@@ -15,6 +15,7 @@ pusher = "*"
 hug = "*"
 requests = "*"
 pymssql = "*"
+firebase-admin = "*"
 
 [requires]
 python_version = "3.7"
